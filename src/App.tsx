@@ -2,7 +2,6 @@
 /* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useState, useEffect, useRef, FormEvent, useMemo } from 'react';
 import { UserWarning } from './UserWarning';
-import cn from 'classnames';
 import { addTodo, deleteTodo, getTodos, USER_ID } from './api/todos';
 import { ErrorMessage } from './types/AppError';
 import { Filter } from './types/Filter';
