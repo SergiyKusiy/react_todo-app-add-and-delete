@@ -6,15 +6,12 @@ type Props = {
   activeCount: number;
   completedCount: number;
   filter: Filter;
-  onFilterChange: (
-    event: React.MouseEvent<HTMLAnchorElement>,
-    newFilter: Filter,
-  ) => void;
+  setFilter: (x: Filter) => void;
   onClearCompleted: () => void;
 };
 
 const FILTER_OPTIONS = [
-  { key: Filter.All, label: 'All', href: '#/' },
+  { key: Filter.All, label: 'All', href: '#/all' },
   { key: Filter.Active, label: 'Active', href: '#/active' },
   { key: Filter.Completed, label: 'Completed', href: '#/completed' },
 ];
@@ -23,7 +20,7 @@ export const Footer: React.FC<Props> = ({
   activeCount,
   completedCount,
   filter,
-  onFilterChange,
+  setFilter,
   onClearCompleted,
 }) => (
   <footer className="todoapp__footer" data-cy="Footer">
@@ -38,7 +35,7 @@ export const Footer: React.FC<Props> = ({
           href={href}
           className={cn('filter__link', { selected: filter === key })}
           data-cy={`FilterLink${label}`}
-          onClick={event => onFilterChange(event, key)}
+          onClick={() => setFilter(key)}
         >
           {label}
         </a>
@@ -49,7 +46,7 @@ export const Footer: React.FC<Props> = ({
       type="button"
       className="todoapp__clear-completed"
       data-cy="ClearCompletedButton"
-      disabled={completedCount === 0}
+      disabled={!completedCount}
       onClick={onClearCompleted}
     >
       Clear completed

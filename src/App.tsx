@@ -1,6 +1,13 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 /* eslint-disable jsx-a11y/control-has-associated-label */
-import React, { useState, useEffect, useRef, FormEvent, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  FormEvent,
+  useMemo,
+  useCallback,
+} from 'react';
 import { UserWarning } from './UserWarning';
 import { addTodo, deleteTodo, getTodos, USER_ID } from './api/todos';
 import { ErrorMessage } from './types/AppError';
@@ -27,12 +34,6 @@ export const App: React.FC = () => {
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!isAdding) {
-      inputRef.current?.focus();
-    }
-  }, [isAdding]);
-
-  useEffect(() => {
     setIsLoading(true);
 
     getTodos()
@@ -47,13 +48,11 @@ export const App: React.FC = () => {
       });
   }, []);
 
-  const handleFilterChange = (
-    event: React.MouseEvent<HTMLAnchorElement>,
-    newFilter: Filter,
-  ) => {
-    event.preventDefault();
-    setFilter(newFilter);
-  };
+  useEffect(() => {
+    if (!isAdding) {
+      inputRef.current?.focus();
+    }
+  }, [todos.length, isAdding]);
 
   const handleAddTodo = (event: FormEvent) => {
     event.preventDefault();
@@ -96,7 +95,6 @@ export const App: React.FC = () => {
     deleteTodo(todoId)
       .then(() => {
         setTodos(prevTodos => prevTodos.filter(todo => todo.id !== todoId));
-        inputRef.current?.focus();
       })
       .catch(() => {
         setError(ErrorMessage.DeleteTodo);
@@ -119,13 +117,16 @@ export const App: React.FC = () => {
           setTodos(prevTodos =>
             prevTodos.filter(todoItem => todoItem.id !== todo.id),
           );
-          inputRef.current?.focus();
         })
         .catch(() => {
           setError(ErrorMessage.DeleteTodo);
         }),
     );
   };
+
+  const handleFilterChange = useCallback((filterStatus: Filter) => {
+    setFilter(filterStatus);
+  }, []);
 
   const handleTitleChange = (value: string) => {
     setTitle(value);
@@ -166,7 +167,7 @@ export const App: React.FC = () => {
           disabled={isAdding}
         />
 
-        {hasTodos && (
+        {!isLoading && hasTodos && (
           <TodoList
             todos={visibleTodos}
             onDelete={handleDeleteTodo}
@@ -183,7 +184,7 @@ export const App: React.FC = () => {
             activeCount={activeCount}
             completedCount={completedCount}
             filter={filter}
-            onFilterChange={handleFilterChange}
+            setFilter={handleFilterChange}
             onClearCompleted={handleClearCompleted}
           />
         )}
@@ -193,8 +194,6 @@ export const App: React.FC = () => {
         error={error}
         onClose={() => setError(ErrorMessage.Default)}
       />
-
-      {isLoading && <div className="loader"></div>}
     </div>
   );
 };
